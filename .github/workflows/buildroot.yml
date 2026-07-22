@@ -1,4 +1,5 @@
-name: Build nanoOS with Buildroot
+
+yamlname: Build nanoOS with Buildroot
 
 on:
   push:
@@ -22,8 +23,7 @@ jobs:
 
     - name: Clone Buildroot Source
       run: |
-        # Menggunakan git clone langsung dari repositori resmi agar anti-gagal unduh
-        git clone --depth 1 --branch 2024.02.x https://github.com
+        git clone --depth=1 --branch=2024.02.x https://github.com
 
     - name: Configure Buildroot Default
       run: |
