@@ -1,0 +1,46 @@
+name: Build nanoOS with Buildroot
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Memungkinkan Anda menjalankan build secara manual lewat tombol Klik
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential wget cpio unzip rsync bc file sed make binutils gcc g++ patch gzip bzip2 perl tar ccache
+
+    - name: Download Buildroot
+      run: |
+        # Mengunduh Buildroot versi Long Term Support (LTS) terbaru
+        wget https://buildroot.org
+        tar -xzf buildroot-2024.02.10.tar.gz
+        mv buildroot-2024.02.10 buildroot
+
+    - name: Configure Buildroot
+      run: |
+        cd buildroot
+        # Menggunakan konfigurasi dasar (QEMU x86_64) sebagai contoh awal nanoOS
+        make qemu_x86_64_defconfig
+        
+        # Di sini Anda bisa menambahkan kustomisasi config lewat sed atau memasukkan file .config kustom Anda sendiri
+
+    - name: Compile OS
+      run: |
+        cd buildroot
+        # Menggunakan 2 Core CPU milik GitHub Actions untuk compile cepat
+        make -j$(nproc)
+
+    - name: Upload OS Images (Artifacts)
+      uses: actions/upload-artifact@v4
+      with:
+        name: nanoOS-images
+        path: buildroot/output/images/
